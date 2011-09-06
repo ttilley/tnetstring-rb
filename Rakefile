@@ -1,5 +1,6 @@
 require "bundler/gem_tasks"
 require 'rspec/core/rake_task'
+require 'rake/clean'
 
 desc "Run specs"
 RSpec::Core::RakeTask.new do |t|
@@ -8,7 +9,4 @@ end
 
 task :default => :spec
 
-desc 'Remove generated code'
-task :clobber do
-  rm_rf './pkg'
-end
+CLOBBER.include 'pkg'
