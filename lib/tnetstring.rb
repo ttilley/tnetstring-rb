@@ -43,6 +43,7 @@ module TNetstring
     [value, remain]
   end
 
+  # @api private
   def self.parse_payload(data) # :nodoc:
     assert data, "Invalid data to parse; it's empty"
     length, extra = data.split(':', 2)
@@ -58,6 +59,7 @@ module TNetstring
     [payload, payload_type, remain]
   end
 
+  # @api private
   def self.parse_list(data) # :nodoc:
     return [] if data.length == 0
     list = []
@@ -71,6 +73,7 @@ module TNetstring
     list
   end
 
+  # @api private
   def self.parse_dictionary(data) # :nodoc:
     return {} if data.length == 0
 
@@ -84,6 +87,7 @@ module TNetstring
     result
   end
 
+  # @api private
   def self.parse_pair(data) # :nodoc:
     key, extra = parse(data)
     assert key.kind_of?(String) || key.kind_of?(Symbol), "Dictionary keys must be Strings or Symbols"
@@ -93,6 +97,7 @@ module TNetstring
     [key, value, extra]
   end
 
+  # @api private
   def self.parse_boolean(data) # :nodoc:
     case data
     when "false"
@@ -169,11 +174,13 @@ module TNetstring
     end
   end
 
+  # @api private
   def self.dump_list(list) # :nodoc:
     contents = list.map {|item| dump(item)}.join
     "#{contents.length}:#{contents}]"
   end
 
+  # @api private
   def self.dump_dictionary(dict) # :nodoc:
     contents = dict.map do |key, value|
       assert key.kind_of?(String) || key.kind_of?(Symbol), "Dictionary keys must be Strings or Symbols"
@@ -182,6 +189,7 @@ module TNetstring
     "#{contents.length}:#{contents}}"
   end
 
+  # @api private
   def self.assert(truthy, message) # :nodoc:
     raise ProcessError.new(message) unless truthy
   end

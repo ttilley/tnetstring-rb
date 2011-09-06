@@ -9,4 +9,5 @@ end
 
 task :default => :spec
 
-CLOBBER.include 'pkg', 'Gemfile.lock'
+CLOBBER.include 'pkg', 'Gemfile.lock', '.yardoc'
+CLEAN.include 'doc'
