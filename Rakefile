@@ -1,3 +1,4 @@
+require "bundler/gem_tasks"
 require 'rspec/core/rake_task'
 
 desc "Run specs"
@@ -6,16 +7,6 @@ RSpec::Core::RakeTask.new do |t|
 end
 
 task :default => :spec
-
-
-namespace :gem do
-  desc 'Builds the gem from the current gemspec'
-  task :build do
-    system 'mkdir -p ./pkg'
-    system 'gem build ./tnetstring.gemspec'
-    system 'mv ./tnetstring-*.gem ./pkg/'
-  end
-end
 
 desc 'Remove generated code'
 task :clobber do
