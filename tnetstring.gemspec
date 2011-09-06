@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.7"
 
   s.files = `git ls-files -- lib/*`.split("\n")
+  s.test_files = `git ls-files -- {test,spec,features}/*`.split("\n")
   
   s.extra_rdoc_files = [
     "HISTORY.rdoc",
