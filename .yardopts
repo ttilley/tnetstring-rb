@@ -1,8 +1,7 @@
 --readme README.rdoc
 --title "TNetstring Documentation"
---hide-void-return
---protected
---no-private
 --charset utf-8
+--query '@api.text != "private"'
 lib/**/*.rb
 - MIT-LICENSE HISTORY.rdoc
+

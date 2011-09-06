@@ -3,22 +3,21 @@
 require 'tnetstring/errors'
 
 module TNetstring
-  # Converts a tnetstring into the encoded data structure.
+  
+  # Converts a tagged netstring into the appropriate data structure
   #
-  # It expects a string argument prefixed with a valid tnetstring and
-  # returns a tuple of the parsed object and any remaining string input.
+  # @example
+  #   TNetstring.parse('5:12345#')
+  #   #=> [12345, '']
+  # @example
+  #   TNetstring.parse('11:hello world,abc123')
+  #   #=> ['hello world', 'abc123']
   #
-  # === Example
-  #
-  #  str = '5:12345#'
-  #  TNetstring.parse(str)
-  #
-  #  #=> [12345, '']
-  #
-  #  str = '11:hello world,abc123'
-  #
-  #  #=> ['hello world', 'abc123']
-  #
+  # @raise [ProcessError]
+  # @param [String] tnetstring a string argument prefixed with a valid tagged
+  #   netstring
+  # @return [Array] a tuple of the parsed object and any remaining string
+  #   input.
   def self.parse(tnetstring)
     payload, payload_type, remain = parse_payload(tnetstring)
     value = case payload_type
@@ -44,7 +43,7 @@ module TNetstring
   end
 
   # @api private
-  def self.parse_payload(data) # :nodoc:
+  def self.parse_payload(data)
     assert data, "Invalid data to parse; it's empty"
     length, extra = data.split(':', 2)
     length = length.to_i
@@ -60,7 +59,7 @@ module TNetstring
   end
 
   # @api private
-  def self.parse_list(data) # :nodoc:
+  def self.parse_list(data)
     return [] if data.length == 0
     list = []
     value, remain = parse(data)
@@ -74,7 +73,7 @@ module TNetstring
   end
 
   # @api private
-  def self.parse_dictionary(data) # :nodoc:
+  def self.parse_dictionary(data)
     return {} if data.length == 0
 
     key, value, extra = parse_pair(data)
@@ -88,7 +87,7 @@ module TNetstring
   end
 
   # @api private
-  def self.parse_pair(data) # :nodoc:
+  def self.parse_pair(data)
     key, extra = parse(data)
     assert key.kind_of?(String) || key.kind_of?(Symbol), "Dictionary keys must be Strings or Symbols"
     assert extra, "Unbalanced dictionary store"
@@ -98,7 +97,7 @@ module TNetstring
   end
 
   # @api private
-  def self.parse_boolean(data) # :nodoc:
+  def self.parse_boolean(data)
     case data
     when "false"
       false
@@ -108,48 +107,31 @@ module TNetstring
       assert false, "Boolean wasn't 'true' or 'false'"
     end
   end
-
-  # <b>DEPRECATED:</b> Please use <tt>dump</tt> instead.
+  
+  # Constructs a tagged netstring for a given object
   #
-  # Constructs a tnetstring out of the given object. Valid Ruby object types
-  # include strings, integers, boolean values, nil, arrays, and hashes. Arrays
-  # and hashes may contain any of the previous valid Ruby object types, but
-  # hash keys must be strings.
-  #
-  # === Example
-  #
-  #  int = 12345
-  #  TNetstring.dump(int)
-  #
-  #  #=> '5:12345#'
-  #
-  #  hash = {'hello' => 'world'}
-  #  TNetstring.dump(hash)
-  #
-  #  #=> '16:5:hello,5:world,}'
-  #
+  # @deprecated Please use {TNetstring.dump} instead.
+  # @param (see TNetstring.dump)
+  # @return (see TNetstring.dump)
   def self.encode(obj)
     warn "[DEPRECATION] `encode` is deprecated.  Please use `dump` instead."
     dump obj
   end
 
-  # Constructs a tnetstring out of the given object. Valid Ruby object types
-  # include strings, integers, boolean values, nil, arrays, and hashes. Arrays
-  # and hashes may contain any of the previous valid Ruby object types, but
-  # hash keys must be strings.
+  # Constructs a tagged netstring for a given object
   #
-  # === Example
+  # @note hash keys must be symbols or strings
   #
-  #  int = 12345
-  #  TNetstring.dump(int)
+  # @example
+  #   TNetstring.dump(12345)
+  #   #=> '5:12345#'
+  # @example
+  #   TNetstring.dump({'hello' => 'world'})
+  #   #=> '16:5:hello,5:world,}'
   #
-  #  #=> '5:12345#'
-  #
-  #  hash = {'hello' => 'world'}
-  #  TNetstring.dump(hash)
-  #
-  #  #=> '16:5:hello,5:world,}'
-  #
+  # @raise [ProcessError]
+  # @param [String, Numeric, Boolean, Nil, Array, Hash] object
+  # @return [String] tagged netstring
   def self.dump(obj)
     if obj.kind_of?(Integer)
       int_str = obj.to_s
@@ -175,13 +157,13 @@ module TNetstring
   end
 
   # @api private
-  def self.dump_list(list) # :nodoc:
+  def self.dump_list(list)
     contents = list.map {|item| dump(item)}.join
     "#{contents.length}:#{contents}]"
   end
 
   # @api private
-  def self.dump_dictionary(dict) # :nodoc:
+  def self.dump_dictionary(dict)
     contents = dict.map do |key, value|
       assert key.kind_of?(String) || key.kind_of?(Symbol), "Dictionary keys must be Strings or Symbols"
       "#{dump(key)}#{dump(value)}"
@@ -190,7 +172,7 @@ module TNetstring
   end
 
   # @api private
-  def self.assert(truthy, message) # :nodoc:
+  def self.assert(truthy, message)
     raise ProcessError.new(message) unless truthy
   end
 end
