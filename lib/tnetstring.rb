@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+require 'tnetstring/version'
 require 'tnetstring/errors'
 
 module TNetstring
