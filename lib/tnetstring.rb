@@ -33,7 +33,7 @@ module TNetstring
     when '}'
       parse_dictionary(payload)
     when '~'
-      assert payload.length == 0, "Payload must be 0 length for null"
+      assert payload.bytesize == 0, "Payload must be 0 length for null"
       nil
     when '!'
       parse_boolean(payload)
@@ -41,6 +41,32 @@ module TNetstring
       assert false, "Invalid payload type: #{payload_type}"
     end
     [value, remain]
+  end
+  
+  if ''.respond_to?(:byteslice)
+    # @api private
+    def self.byteslice(string, length)
+      # ruby 1.9.3-head includes a sane, optimal, byteslice method
+      [string.byteslice(0...length), string.byteslice(length..-1)]
+    end
+  elsif ''.respond_to?(:force_encoding)
+    # @api private
+    def self.byteslice(string, length)
+      # ruby 1.9.x prior to 1.9.3-head... does not.
+      copy = string.dup
+      original_encoding = copy.encoding
+      copy.force_encoding(Encoding::BINARY)
+      payload, extra = copy[0, length], copy[length..-1]
+      payload.force_encoding(original_encoding)
+      extra.force_encoding(original_encoding)
+      [payload, extra]
+    end
+  else
+    # @api private
+    def self.byteslice(string, length)
+      # good ol' ruby 1.8 doesn't know what an encoding is
+      [string[0, length], string[length..-1]]
+    end
   end
 
   # @api private
@@ -51,11 +77,12 @@ module TNetstring
     assert length <= 999_999_999, "Data is longer than the specification allows"
     assert length >= 0, "Data length cannot be negative"
 
-    payload, extra = extra[0, length], extra[length..-1]
+    payload, extra = byteslice(extra, length)
+    
     assert extra, "No payload type: #{payload}, #{extra}"
-    payload_type, remain = extra[0,1], extra[1..-1]
+    payload_type, remain = byteslice(extra, 1)
 
-    assert payload.length == length, "Data is wrong length: #{length} expected but was #{payload.length}"
+    assert payload.bytesize == length, "Data is wrong length: #{length} expected but was #{payload.bytesize}"
     [payload, payload_type, remain]
   end
 
@@ -136,12 +163,12 @@ module TNetstring
   def self.dump(obj)
     if obj.kind_of?(Integer)
       int_str = obj.to_s
-      "#{int_str.length}:#{int_str}#"
+      "#{int_str.bytesize}:#{int_str}#"
     elsif obj.kind_of?(Float)
       float_str = obj.to_s
-      "#{float_str.length}:#{float_str}^"
+      "#{float_str.bytesize}:#{float_str}^"
     elsif obj.kind_of?(String) || obj.kind_of?(Symbol)
-      "#{obj.length}:#{obj},"
+      "#{obj.to_s.bytesize}:#{obj},"
     elsif obj.is_a?(TrueClass)
       "4:true!"
     elsif obj.is_a?(FalseClass)
@@ -160,7 +187,7 @@ module TNetstring
   # @api private
   def self.dump_list(list)
     contents = list.map {|item| dump(item)}.join
-    "#{contents.length}:#{contents}]"
+    "#{contents.bytesize}:#{contents}]"
   end
 
   # @api private
@@ -169,7 +196,7 @@ module TNetstring
       assert key.kind_of?(String) || key.kind_of?(Symbol), "Dictionary keys must be Strings or Symbols"
       "#{dump(key)}#{dump(value)}"
     end.join
-    "#{contents.length}:#{contents}}"
+    "#{contents.bytesize}:#{contents}}"
   end
 
   # @api private

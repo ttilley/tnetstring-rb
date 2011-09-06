@@ -30,7 +30,7 @@ describe TNetstring do
     tasty_pi.bytesize.should == 2
     
     TNetstring.dump(tasty_pi).should == "2:#{tasty_pi},"
-    TNetstring.parse("2:#{tasty_pi},").should == tasty_pi
+    TNetstring.parse("2:#{tasty_pi},").should == [tasty_pi, '']
   end
   
   describe "parsing" do
