@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.email             = 'mby@mattyoho.com'
   s.homepage          = 'http://github.com/mattyoho/tnetstring-rb'
 
-  s.add_development_dependency('rspec', '~> 2.5.0')
   s.add_development_dependency('bundler', '>= 1.0.12')
+  s.add_development_dependency('rake', '>= 0.9.1')
+  s.add_development_dependency('rspec', '~> 2.5.0')
 end
