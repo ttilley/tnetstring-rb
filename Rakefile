@@ -9,4 +9,4 @@ end
 
 task :default => :spec
 
-CLOBBER.include 'pkg'
+CLOBBER.include 'pkg', 'Gemfile.lock'
