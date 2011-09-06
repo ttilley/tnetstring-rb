@@ -11,7 +11,8 @@ Gem::Specification.new do |s|
   s.required_ruby_version     = '>= 1.8.7'
   s.required_rubygems_version = ">= 1.3.7"
 
-  s.files = Dir['lib/**/*']
+  s.files = `git ls-files -- lib/*`.split("\n")
+  
   s.extra_rdoc_files = [
     "HISTORY.rdoc",
     "MIT-LICENSE",
