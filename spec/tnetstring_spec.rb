@@ -36,7 +36,7 @@ describe TNetstring do
       TNetstring.parse('12:this is cool,')[0].should == "this is cool"
     end
 
-    it "parses to an empty array" do
+    it "parses an empty array" do
       TNetstring.parse('0:]')[0].should == []
     end
 
@@ -44,7 +44,7 @@ describe TNetstring do
       TNetstring.parse('24:5:12345#5:67890#5:xxxxx,]')[0].should == [12345, 67890, 'xxxxx']
     end
 
-    it "parses to an empty hash" do
+    it "parses an empty hash" do
       TNetstring.parse('0:}')[0].should == {}
     end
 
@@ -181,7 +181,7 @@ describe TNetstring do
       end
 
       it "accepts symbols as keys" do
-        TNetstring.dump({ :hello => {"world" => 24}}).should == '25:5:hello,13:5:world,2:24#}}'
+        TNetstring.dump({:hello => {"world" => 24}}).should == '25:5:hello,13:5:world,2:24#}}'
       end
 
       it "rejects non-String keys" do
