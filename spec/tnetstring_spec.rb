@@ -111,6 +111,14 @@ describe TNetstring do
       it "dumps a negative integer" do
         TNetstring.dump(-42).should == "3:-42#"
       end
+      
+      it "handles 32bit LONG_MAX" do
+        TNetstring.dump(0x7fffffff).should == "10:2147483647#"
+      end
+      
+      it "handles 64bit LONG_MAX" do
+        TNetstring.dump(0x7fffffffffffffff).should == "19:9223372036854775807#"
+      end
     end
 
     describe "floats" do
