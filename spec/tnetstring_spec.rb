@@ -43,6 +43,17 @@ describe TNetstring do
     it "parses an arbitrary array of ints and strings" do
       TNetstring.parse('24:5:12345#5:67890#5:xxxxx,]')[0].should == [12345, 67890, 'xxxxx']
     end
+    
+    it "parses an absurdly nested array" do
+      str = '243:238:233:228:223:218:213:208:203:198:193:188:183:178:173:' \
+            '168:163:158:153:148:143:138:133:128:123:118:113:108:103:99:95:' \
+            '91:87:83:79:75:71:67:63:59:55:51:47:43:39:35:31:27:23:19:15:' \
+            '11:hello-there,]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]' \
+            ']]]]]]'
+      TNetstring.parse(str)[0].should == [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
+        [[[[[[[[[[[[[[[[["hello-there"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+        ]]]]]]]]]]]]]]
+    end
 
     it "parses an empty hash" do
       TNetstring.parse('0:}')[0].should == {}
