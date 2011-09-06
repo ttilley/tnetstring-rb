@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-require 'spec_helper'
+require 'tnetstring'
 
 describe TNetstring do
-  context "parsing" do
-    context "integers" do
+  describe "parsing" do
+    describe "integers" do
       it "parses a positive integer" do
         TNetstring.parse('5:12345#')[0].should == 12345
       end
@@ -14,7 +14,7 @@ describe TNetstring do
       end
     end
 
-    context "floats" do
+    describe "floats" do
       it "parses a positve float" do
         TNetstring.parse('3:3.5^')[0].should == 3.5
       end
@@ -61,7 +61,7 @@ describe TNetstring do
     end
 
     it "raises on a lengthy null" do
-      expect { TNetstring.parse('1:x~')[0] }.to raise_error(TNetstring::ProcessError)
+      lambda { TNetstring.parse('1:x~')[0] }.should.raise(TNetstring::ProcessError)
     end
 
     it "parses a boolean" do
@@ -69,38 +69,41 @@ describe TNetstring do
     end
 
     it "raises on a bad boolean" do
-      expect { TNetstring.parse('5:pants!')[0] }.to raise_error(TNetstring::ProcessError)
+      lambda { TNetstring.parse('5:pants!')[0] }.should.raise(TNetstring::ProcessError)
     end
 
     it "raises with negative length" do
-      expect { TNetstring.parse("-1:asd,")[0] }.to raise_error(TNetstring::ProcessError)
+      lambda { TNetstring.parse("-1:asd,")[0] }.should.raise(TNetstring::ProcessError)
     end
 
     it "raises with absurd length" do
-      expect { TNetstring.parse("1000000000:asd,")[0] }.to raise_error(TNetstring::ProcessError)
+      lambda { TNetstring.parse("1000000000:asd,")[0] }.should.raise(TNetstring::ProcessError)
     end
 
     it "raises on unknown type" do
-      expect { TNetstring.parse('0:)')[0] }.to raise_error(TNetstring::ProcessError)
+      lambda { TNetstring.parse('0:)')[0] }.should.raise(TNetstring::ProcessError)
     end
   end
 
-  context "encoding" do
-    before { TNetstring.stub(:warn) }
+  #TODO: re-implement without rspec stubbing and reword to make it more clear
+  #      that we're testing deprecation
+  #
+  # describe "encoding" do
+  #   before { TNetstring.stub(:warn) }
+  # 
+  #   it "delegates to TNetstring.dump" do
+  #     TNetstring.should_receive(:dump).with(nil).and_return("0:~")
+  #     TNetstring.encode(nil).should == "0:~"
+  #   end
+  # 
+  #   it "calls Kernel#warn" do
+  #     TNetstring.should_receive(:warn)
+  #     TNetstring.encode(nil)
+  #   end
+  # end
 
-    it "delegates to TNetstring.dump" do
-      TNetstring.should_receive(:dump).with(nil).and_return("0:~")
-      TNetstring.encode(nil).should == "0:~"
-    end
-
-    it "calls Kernel#warn" do
-      TNetstring.should_receive(:warn)
-      TNetstring.encode(nil)
-    end
-  end
-
-  context "dumping" do
-    context "integers" do
+  describe "dumping" do
+    describe "integers" do
       it "dumps a positive integer" do
         TNetstring.dump(42).should == "2:42#"
       end
@@ -110,7 +113,7 @@ describe TNetstring do
       end
     end
 
-    context "floats" do
+    describe "floats" do
       it "dumps a positive float" do
         TNetstring.dump(12.3).should == "4:12.3^"
       end
@@ -128,7 +131,7 @@ describe TNetstring do
       TNetstring.dump("hello world").should == "11:hello world,"
     end
 
-    context "boolean" do
+    describe "boolean" do
       it "dumps true as 'true'" do
         TNetstring.dump(true).should == "4:true!"
       end
@@ -142,7 +145,7 @@ describe TNetstring do
       TNetstring.dump(nil).should == "0:~"
     end
 
-    context "arrays" do
+    describe "arrays" do
       it "dumps an empty array" do
         TNetstring.dump([]).should == "0:]"
       end
@@ -156,7 +159,7 @@ describe TNetstring do
       end
     end
 
-    context "hashes" do
+    describe "hashes" do
       it "dumps an empty hash" do
         TNetstring.dump({}).should == "0:}"
       end
@@ -174,12 +177,12 @@ describe TNetstring do
       end
 
       it "rejects non-String keys" do
-        expect { TNetstring.dump({123 => "456"}) }.to raise_error(TNetstring::ProcessError)
+        lambda { TNetstring.dump({123 => "456"}) }.should.raise(TNetstring::ProcessError)
       end
     end
 
     it "rejects non-primitives" do
-      expect { TNetstring.dump(Object.new) }.to raise_error(TNetstring::ProcessError)
+      lambda { TNetstring.dump(Object.new) }.should.raise(TNetstring::ProcessError)
     end
   end
 end
