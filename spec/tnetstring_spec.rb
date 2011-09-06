@@ -3,6 +3,36 @@
 require 'tnetstring'
 
 describe TNetstring do
+  
+  # The loosely specified tagged netstring format conflicts with itself
+  # slightly when it comes to UTF8. It's stated that the string type is
+  # US-ASCII only, and that UTF8 is forbidden. Just below that is a
+  # statement that anything that doesn't perfectly interoperate with the
+  # reference implementation in python "is wrong and is not tnetstrings".
+  # The reference implementation, however, supports UTF8 just fine. From
+  # an ipython session pulling the example and evaluating it straight from
+  # the site:
+  #
+  # In [1]: %loadpy http://tnetstrings.org/tnetstrings.py
+  # In [3]: dump("π")
+  # Out[3]: '2:\xcf\x80,'
+  # In [4]: parse("2:π,")
+  # Out[4]: ('\xcf\x80', '')
+  #
+  # Since it's in my own best interests to support UTF8 and I'm perfectly
+  # OK with the idea that some random implementation might not, I'll weigh
+  # the later statement as having greater authority. (^_-)b
+  it "properly handles strings containing multibyte characters" do
+    tasty_pi = "\xcf\x80"
+    
+    # chars.count and bytesize should be supported from 1.8.7+
+    tasty_pi.chars.count.should == 1
+    tasty_pi.bytesize.should == 2
+    
+    TNetstring.dump(tasty_pi).should == "2:#{tasty_pi},"
+    TNetstring.parse("2:#{tasty_pi},").should == tasty_pi
+  end
+  
   describe "parsing" do
     describe "integers" do
       it "parses a positive integer" do
