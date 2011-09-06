@@ -8,9 +8,7 @@ CLEAN.include 'doc'
 
 task :default => :spec
 
-task :spec do
-  $LOAD_PATH.unshift(File.expand_path('lib'))
-  
+task :spec do  
   files = []
   files.concat Dir["test/**/test_*.rb"]
   files.concat Dir["test/**/spec_*.rb"]
